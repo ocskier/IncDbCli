@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "dist",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "lib": ["es2015"]
+  },
+  "files": ["./node_modules/@types/node/index.d.ts"],
+  "include": ["*.ts", "./lib/*.ts", "./test/*.ts", "./db/*.ts"],
+  "exclude": ["node_modules"]
+}
