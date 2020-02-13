@@ -5,6 +5,7 @@ import { MysqlError } from 'mysql';
 
 const conn = require('./db/connection');
 const queryDb = require('./db/connectionPromise');
+const queries = require('./controllers/controller');
 
 let keepRunning: boolean = true;
 
@@ -32,7 +33,10 @@ const getChart = async (val: string) => {
   while (keepRunning) {
     switch (val) {
       case '1':
-        const result = await queryDb(conn, ['select * from company']);
+        const result = await queryDb(conn, queries.getAllEmployees());
+        console.log(result);
+        keepRunning = false;
+        conn.end();
         break;
       case '2':
         break;
