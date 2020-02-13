@@ -14,37 +14,66 @@ const menu = [
     message: 'Choose one of the following: ',
     name: 'choice',
     type: 'list',
-    choices: ['1', '2', '3', 'Done'],
+    choices: [
+      'Get Departments', 
+      'Get Roles', 
+      'Get Employees', 
+      'Add A New Department',
+      'Add A New Role',
+      'Add A New Employee',
+      `Update an Employee's Role`,
+      `Update An Employee's Manager`,
+      `View All Employee's of Manager`,
+      'Remove A Dept',
+      'Remove A Role',
+      'Remove An Employee',
+      `View A Department's Budget`,
+      'Done'],
   },
 ];
 
 // Main functional logic
 const init = async () => {
   // let i = 0; Reserved for later use
-
+  while (keepRunning) {
   const { choice } = await ask.prompt(menu);
 
   choice && (await getChart(choice));
-
-  // ui.log.write('\nManager Logged!\n\n');
+  }
 };
 
 const getChart = async (val: string) => {
-  while (keepRunning) {
+    let result;
     switch (val) {
-      case '1':
-        const result = await queryDb(conn, queries.getAllEmployees());
+      case 'Get Departments':
+        result = await queryDb(conn, queries.getAllDepartments());
         console.log(result);
-        keepRunning = false;
-        conn.end();
         break;
-      case '2':
+      case 'Get Roles':
+        result = await queryDb(conn, queries.getAllRoles());
+        console.log(result);
+        break;
+      case 'Get Employees':
+        result = await queryDb(conn, queries.getAllEmployees());
+        console.log(result);
+        break;
+      case 'Add A New Department':
+        const {deptName} = await ask.prompt([{
+          message: 'Department Name: ',
+          name: 'deptName',
+          validate: (input:string) => {
+            if (input) return true;
+            else return 'You didnt enter a name!'
+          }
+        }]);
+        result = await queryDb(conn, queries.addDept(deptName));
+        console.log(result.affectedRows);
         break;
       case 'Done':
         keepRunning = false;
+        conn.end();
         break;
     }
-  }
 };
 
 conn.connect((err: MysqlError) => {

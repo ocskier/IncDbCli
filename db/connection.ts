@@ -3,9 +3,9 @@ require('dotenv').config();
 const mysql = require('mysql');
 
 const options = {
-  host: '127.0.0.1',
+  host: 'localhost',
   port: 3306,
-  user: process.env.USER,
+  user: process.env.USERNAME,
   password: process.env.PASSWORD,
   database: 'company_db',
 };
