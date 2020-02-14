@@ -22,8 +22,7 @@ const menu = [
       'Add A New Department',
       'Add A New Role',
       'Add A New Employee',
-      `Update an Employee's Role`,
-      `Update An Employee's Manager`,
+      `Update an Employee's Data`,
       `View All Employee's of Manager`,
       'Remove A Dept',
       'Remove A Role',
@@ -90,10 +89,9 @@ const employeeQues = [
 
 // Main functional logic
 const init = async () => {
-  // let i = 0; Reserved for later use
+  printTable([{ '  Jackson Inc. Employee Database ': null }]);
   while (keepRunning) {
     const { choice } = await ask.prompt(menu);
-
     choice && (await getChart(choice));
   }
 };
@@ -125,12 +123,12 @@ const getChart = async (val: string) => {
         },
       ]);
       result = await queryDb(conn, queries.addDept(deptName));
-      console.log(result.affectedRows);
+      console.log(`\nAdded ${result.affectedRows} new department!\n`);
       break;
     case 'Add A New Role':
       answers = await ask.prompt(roleQues);
       result = await queryDb(conn, queries.addRole(answers));
-      console.log(result.affectedRows);
+      console.log(`\nAdded ${result.affectedRows} new role!\n`);
       break;
     case 'Add A New Employee':
       answers = await ask.prompt(employeeQues);
@@ -138,21 +136,43 @@ const getChart = async (val: string) => {
       answers.last = answers.name.split(' ')[1];
       delete answers.name;
       result = await queryDb(conn, queries.addEmployee(answers));
-      console.log(result.affectedRows);
+      console.log(`\nAdded ${result.affectedRows} new employee!\n`);
       break;
-    case `Update an Employee's Role`:
-      let { id, roleId } = await ask.prompt([
+    case `Update an Employee's Data`:
+      let { id, choice } = await ask.prompt([
         {
           message: `What is the employee's id?`,
           name: 'id',
         },
         {
-          message: `What is the new role id?`,
-          name: 'roleId',
+          message: 'Choose which to update: ',
+          type: 'list',
+          choices: ['Role', 'Manager'],
+          name: 'choice',
         },
       ]);
-      result = await queryDb(conn, queries.updateEmployeeRole(roleId, id));
-      console.log(result.affectedRows);
+      let updateId;
+      switch (choice) {
+        case 'Role':
+          let { roleId } = await ask.prompt({
+            message: `What is the new role id?`,
+            name: 'roleId',
+          });
+          updateId = roleId;
+          break;
+        case 'Manager':
+          let { managerId } = await ask.prompt({
+            message: `What is the new manager id?`,
+            name: 'managerId',
+          });
+          updateId = managerId;
+          break;
+      }
+      result = await queryDb(
+        conn,
+        queries[`updateEmployee${choice}`](parseInt(updateId), parseInt(id))
+      );
+      console.log(`\nUpdated ${result.affectedRows} employee!\n`);
       break;
     case 'Done':
       keepRunning = false;

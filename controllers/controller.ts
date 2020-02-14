@@ -41,9 +41,11 @@ module.exports = {
     ];
   },
   updateEmployeeRole: (role: number, id: number) => {
-    return [`UPDATE employees SET (roleId=${role}) WHERE id=${id}`];
+    return [`UPDATE employees SET roleId=${role} WHERE id=${id}`];
   },
-  updateEmployeeManager: () => {},
+  updateEmployeeManager: (manager: number, id: number) => {
+    return [`UPDATE employees SET managerId=${manager} WHERE id=${id}`];
+  },
   viewEmployeesByManager: () => {},
   removeDept: () => {},
   removeRole: () => {},
