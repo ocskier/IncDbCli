@@ -43,46 +43,52 @@ module.exports = class db {
     return this.promisifyConn(['SELECT * FROM roles']);
   }
   addDept(dept: string) {
-    return [`INSERT INTO departments(name) VALUES('${dept}')`];
+    return this.promisifyConn([
+      `INSERT INTO departments(name) VALUES('${dept}')`,
+    ]);
   }
 
   addRole(roleData: IRole) {
-    return [
+    return this.promisifyConn([
       `INSERT INTO roles(title,salary,deptId) VALUES('${
         roleData.title
       }',${parseFloat(roleData.salary)},${parseInt(roleData.deptId)})`,
-    ];
+    ]);
   }
 
   addEmployee(empData: IEmployee) {
-    return [
+    return this.promisifyConn([
       `INSERT INTO employees(first,last,roleId,managerId) VALUES('${
         empData.first
       }','${empData.last}',${parseInt(empData.roleId)},${parseInt(
         empData.managerId
       )})`,
-    ];
+    ]);
   }
 
   updateEmployeeRole(role: number, id: number) {
-    return [`UPDATE employees SET roleId=${role} WHERE id=${id}`];
+    return this.promisifyConn([
+      `UPDATE employees SET roleId=${role} WHERE id=${id}`,
+    ]);
   }
 
   updateEmployeeManager(manager: number, id: number) {
-    return [`UPDATE employees SET managerId=${manager} WHERE id=${id}`];
+    return this.promisifyConn([
+      `UPDATE employees SET managerId=${manager} WHERE id=${id}`,
+    ]);
   }
 
   viewEmployeesByManager() {}
   removeDept(id: number) {
-    return [`DELETE FROM departments WHERE id=${id}`];
+    return this.promisifyConn([`DELETE FROM departments WHERE id=${id}`]);
   }
 
   removeRole(id: number) {
-    return [`DELETE FROM roles WHERE id=${id}`];
+    return this.promisifyConn([`DELETE FROM roles WHERE id=${id}`]);
   }
 
   removeEmployee(id: number) {
-    return [`DELETE FROM employees WHERE id=${id}`];
+    return this.promisifyConn([`DELETE FROM employees WHERE id=${id}`]);
   }
 
   viewDeptBudget() {}
