@@ -1,6 +1,7 @@
 // External package imports
 const ask = require('inquirer');
 const validator = require('validator');
+const { printTable } = require('console-table-printer');
 import { MysqlError } from 'mysql';
 
 const conn = require('./db/connection');
@@ -102,15 +103,15 @@ const getChart = async (val: string) => {
   switch (val) {
     case 'Get Departments':
       result = await queryDb(conn, queries.getAllDepts());
-      console.log(result);
+      printTable(result);
       break;
     case 'Get Roles':
       result = await queryDb(conn, queries.getAllRoles());
-      console.log(result);
+      printTable(result);
       break;
     case 'Get Employees':
       result = await queryDb(conn, queries.getAllEmployees());
-      console.log(result);
+      printTable(result);
       break;
     case 'Add A New Department':
       const { deptName } = await ask.prompt([
@@ -137,6 +138,20 @@ const getChart = async (val: string) => {
       answers.last = answers.name.split(' ')[1];
       delete answers.name;
       result = await queryDb(conn, queries.addEmployee(answers));
+      console.log(result.affectedRows);
+      break;
+    case `Update an Employee's Role`:
+      let { id, roleId } = await ask.prompt([
+        {
+          message: `What is the employee's id?`,
+          name: 'id',
+        },
+        {
+          message: `What is the new role id?`,
+          name: 'roleId',
+        },
+      ]);
+      result = await queryDb(conn, queries.updateEmployeeRole(roleId, id));
       console.log(result.affectedRows);
       break;
     case 'Done':
