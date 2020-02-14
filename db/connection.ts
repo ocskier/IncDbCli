@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const mysql = require('mysql');
+import { MysqlError } from 'mysql';
 
 const options = {
   host: 'localhost',
