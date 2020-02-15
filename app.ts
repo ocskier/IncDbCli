@@ -17,12 +17,12 @@ const validate = {
     if (text) return true;
     else return 'You didnt enter a valid string!';
   },
-  isInt: (input: string) => {
-    if (!isNaN(parseInt(input))) return true;
+  isInt: (text: string) => {
+    if (!isNaN(parseInt(text))) return true;
     else return 'You didnt enter a valid number!';
   },
-  isFloat: (input: string) => {
-    if (!isNaN(parseFloat(input))) return true;
+  isFloat: (text: string) => {
+    if (!isNaN(parseFloat(text))) return true;
     else return 'You didnt enter a valid number!';
   },
 };
@@ -49,7 +49,7 @@ const menu = [
       'Remove A Role',
       'Remove An Employee',
       `View A Department's Budget`,
-      'Done',
+      'Done !',
     ],
   },
 ];
@@ -146,7 +146,7 @@ const getChart = async (val: string) => {
         {
           message: makeIdQues('employee'),
           name: 'id',
-          validator: validate.isInt,
+          validate: validate.isInt,
         },
         {
           message: 'Choose which to update: ',
@@ -161,7 +161,7 @@ const getChart = async (val: string) => {
           let { roleId } = await ask.prompt({
             message: makeIdQues('new role'),
             name: 'roleId',
-            validator: validate.isInt,
+            validate: validate.isInt,
           });
           updateId = roleId;
           break;
@@ -169,7 +169,7 @@ const getChart = async (val: string) => {
           let { managerId } = await ask.prompt({
             message: makeIdQues('new manager'),
             name: 'managerId',
-            validator: validate.isInt,
+            validate: validate.isInt,
           });
           updateId = managerId;
           break;
@@ -185,14 +185,18 @@ const getChart = async (val: string) => {
       let { managerId } = await ask.prompt({
         message: makeIdQues('manager'),
         name: 'managerId',
+        validate: validate.isInt,
       });
       result = await db.viewEmployeesByManager(parseInt(managerId));
-      result && printTable(result);
+      result.length > 0
+        ? printTable(result)
+        : console.log('\nEmployee does not have any direct reports!\n');
       break;
     case 'Remove A Dept':
       let { dept_id } = await ask.prompt({
         message: makeIdQues('department'),
         name: 'dept_id',
+        validate: validate.isInt,
       });
       result = await db.removeDept(parseInt(dept_id));
       result && console.log(`\nDeleted ${result.affectedRows} department!\n`);
@@ -202,6 +206,7 @@ const getChart = async (val: string) => {
       let { role_id } = await ask.prompt({
         message: makeIdQues('role'),
         name: 'role_id',
+        validate: validate.isInt,
       });
       result = await db.removeRole(parseInt(role_id));
       result && console.log(`\nDeleted ${result.affectedRows} role!\n`);
@@ -211,6 +216,7 @@ const getChart = async (val: string) => {
       let { emp_id } = await ask.prompt({
         message: makeIdQues('employee'),
         name: 'emp_id',
+        validate: validate.isInt,
       });
       result = await db.removeEmployee(parseInt(emp_id));
       result && console.log(`\nDeleted ${result.affectedRows} employee!\n`);
@@ -220,6 +226,7 @@ const getChart = async (val: string) => {
       let { deptid } = await ask.prompt({
         message: makeIdQues('department'),
         name: 'deptid',
+        validate: validate.isInt,
       });
       result = await db.viewDeptBudget(parseInt(deptid));
       result &&
@@ -229,7 +236,7 @@ const getChart = async (val: string) => {
           }, 0)}\n`
         );
       break;
-    case 'Done':
+    case 'Done !':
       keepRunning = false;
       db.end();
       break;
