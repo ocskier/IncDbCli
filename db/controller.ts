@@ -78,7 +78,11 @@ module.exports = class db {
     ]);
   }
 
-  viewEmployeesByManager() {}
+  viewEmployeesByManager(id: number) {
+    return this.promisifyConn([
+      `SELECT first,last,roleId FROM employees WHERE managerId=${id}`,
+    ]);
+  }
   removeDept(id: number) {
     return this.promisifyConn([`DELETE FROM departments WHERE id=${id}`]);
   }
@@ -91,7 +95,13 @@ module.exports = class db {
     return this.promisifyConn([`DELETE FROM employees WHERE id=${id}`]);
   }
 
-  viewDeptBudget() {}
+  viewDeptBudget(id: number) {
+    return this.promisifyConn([
+      `SELECT departments.id,departments.name,roles.title,roles.salary,roles.id,employees.first,employees.last
+       FROM ((departments INNER JOIN roles ON departments.id = roles.deptId)
+       INNER JOIN employees ON roles.id = employees.roleId) WHERE departments.id=${id}`,
+    ]);
+  }
   end() {
     this.connection.end();
   }

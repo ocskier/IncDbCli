@@ -146,7 +146,7 @@ const getChart = async (val: string) => {
     case `Update an Employee's Data`:
       let { id, choice } = await ask.prompt([
         {
-          message: makeIdQues("employee's"),
+          message: makeIdQues('employee'),
           name: 'id',
         },
         {
@@ -179,8 +179,14 @@ const getChart = async (val: string) => {
       );
       result && console.log(`\nUpdated ${result.affectedRows} employee!\n`);
       break;
-    case `View All Employees of a Manager`:
-
+    case `View All Employees of Manager`:
+      let { managerId } = await ask.prompt({
+        message: makeIdQues('manager'),
+        name: 'managerId',
+      });
+      result = await db.viewEmployeesByManager(parseInt(managerId));
+      result && printTable(result);
+      break;
     case 'Remove A Dept':
       let { dept_id } = await ask.prompt({
         message: makeIdQues('department'),
@@ -191,7 +197,7 @@ const getChart = async (val: string) => {
       break;
     case 'Remove A Role':
       let { role_id } = await ask.prompt({
-        message: makeIdQues('department'),
+        message: makeIdQues('role'),
         name: 'role_id',
       });
       result = await db.removeRole(parseInt(role_id));
@@ -199,13 +205,24 @@ const getChart = async (val: string) => {
       break;
     case 'Remove An Employee':
       let { emp_id } = await ask.prompt({
-        message: makeIdQues('department'),
+        message: makeIdQues('employee'),
         name: 'emp_id',
       });
       result = await db.removeEmployee(parseInt(emp_id));
       result && console.log(`\nDeleted ${result.affectedRows} employee!\n`);
       break;
     case `View A Department's Budget`:
+      let { deptid } = await ask.prompt({
+        message: makeIdQues('department'),
+        name: 'deptid',
+      });
+      result = await db.viewDeptBudget(parseInt(deptid));
+      result &&
+        console.log(
+          `\n${result[0].name} Budget: $${result.reduce((a: any, b: any) => {
+            return (a += b.salary);
+          }, 0)}\n`
+        );
       break;
     case 'Done':
       keepRunning = false;
