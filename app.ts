@@ -3,13 +3,33 @@ import { MysqlError } from 'mysql';
 // External package imports
 const ask = require('inquirer');
 const connection = require('./db/connection');
-const validator = require('validator');
 const { printTable } = require('console-table-printer');
+
+// const validator = require('validator');
 
 const Database = require('./db/controller');
 const db = new Database();
 
 let keepRunning: boolean = true;
+
+const validate = {
+  isInput: (text: string) => {
+    if (text) return true;
+    else return 'You didnt enter a valid string!';
+  },
+  isInt: (input: string) => {
+    if (!isNaN(parseInt(input))) return true;
+    else return 'You didnt enter a valid number!';
+  },
+  isFloat: (input: string) => {
+    if (!isNaN(parseFloat(input))) return true;
+    else return 'You didnt enter a valid number!';
+  },
+};
+
+const makeIdQues = (text: string) => {
+  return `What is the ${text} id?`;
+};
 
 const menu = [
   {
@@ -38,26 +58,17 @@ const roleQues = [
   {
     message: 'Role: ',
     name: 'title',
-    validate: (input: string) => {
-      if (input) return true;
-      else return 'You didnt enter a name!';
-    },
+    validate: validate.isInput,
   },
   {
     message: 'Salary: ',
     name: 'salary',
-    validate: (input: string) => {
-      if (!isNaN(parseFloat(input))) return true;
-      else return 'You didnt enter a valid number!';
-    },
+    validate: validate.isFloat,
   },
   {
     message: 'Dept ID: ',
     name: 'deptId',
-    validate: (input: string) => {
-      if (!isNaN(parseInt(input))) return true;
-      else return 'You didnt enter a valid number!';
-    },
+    validate: validate.isInt,
   },
 ];
 
@@ -65,32 +76,19 @@ const employeeQues = [
   {
     message: 'Full Name: ',
     name: 'name',
-    validate: (input: string) => {
-      if (input) return true;
-      else return 'You didnt enter a name!';
-    },
+    validate: validate.isInput,
   },
   {
     message: 'Role Id: ',
     name: 'roleId',
-    validate: (input: string) => {
-      if (!isNaN(parseInt(input))) return true;
-      else return 'You didnt enter a valid number!';
-    },
+    validate: validate.isInt,
   },
   {
     message: 'Manager Id: ',
     name: 'managerId',
-    validate: (input: string) => {
-      if (!isNaN(parseInt(input))) return true;
-      else return 'You didnt enter a valid number!';
-    },
+    validate: validate.isInt,
   },
 ];
-
-const makeIdQues = (text: string) => {
-  return `What is the ${text} id?`;
-};
 
 // Main functional logic
 const init = async () => {
@@ -121,19 +119,18 @@ const getChart = async (val: string) => {
         {
           message: 'Department Name: ',
           name: 'deptName',
-          validate: (input: string) => {
-            if (input) return true;
-            else return 'You didnt enter a name!';
-          },
+          validate: validate.isInput,
         },
       ]);
       result = await db.addDept(deptName);
       result && console.log(`\nAdded ${result.affectedRows} new department!\n`);
+      result && printTable(await db.getAllDepts());
       break;
     case 'Add A New Role':
       answers = await ask.prompt(roleQues);
       result = await db.addRole(answers);
       result && console.log(`\nAdded ${result.affectedRows} new role!\n`);
+      result && printTable(await db.getAllRoles());
       break;
     case 'Add A New Employee':
       answers = await ask.prompt(employeeQues);
@@ -142,12 +139,14 @@ const getChart = async (val: string) => {
       delete answers.name;
       result = await db.addEmployee(answers);
       result && console.log(`\nAdded ${result.affectedRows} new employee!\n`);
+      result && printTable(await db.getAllEmployees());
       break;
     case `Update an Employee's Data`:
       let { id, choice } = await ask.prompt([
         {
           message: makeIdQues('employee'),
           name: 'id',
+          validator: validate.isInt,
         },
         {
           message: 'Choose which to update: ',
@@ -162,6 +161,7 @@ const getChart = async (val: string) => {
           let { roleId } = await ask.prompt({
             message: makeIdQues('new role'),
             name: 'roleId',
+            validator: validate.isInt,
           });
           updateId = roleId;
           break;
@@ -169,6 +169,7 @@ const getChart = async (val: string) => {
           let { managerId } = await ask.prompt({
             message: makeIdQues('new manager'),
             name: 'managerId',
+            validator: validate.isInt,
           });
           updateId = managerId;
           break;
@@ -178,6 +179,7 @@ const getChart = async (val: string) => {
         parseInt(id)
       );
       result && console.log(`\nUpdated ${result.affectedRows} employee!\n`);
+      result && printTable(await db.getAllEmployees());
       break;
     case `View All Employees of Manager`:
       let { managerId } = await ask.prompt({
@@ -194,6 +196,7 @@ const getChart = async (val: string) => {
       });
       result = await db.removeDept(parseInt(dept_id));
       result && console.log(`\nDeleted ${result.affectedRows} department!\n`);
+      result && printTable(await db.getAllDepts());
       break;
     case 'Remove A Role':
       let { role_id } = await ask.prompt({
@@ -202,6 +205,7 @@ const getChart = async (val: string) => {
       });
       result = await db.removeRole(parseInt(role_id));
       result && console.log(`\nDeleted ${result.affectedRows} role!\n`);
+      result && printTable(await db.getAllRoles());
       break;
     case 'Remove An Employee':
       let { emp_id } = await ask.prompt({
@@ -210,6 +214,7 @@ const getChart = async (val: string) => {
       });
       result = await db.removeEmployee(parseInt(emp_id));
       result && console.log(`\nDeleted ${result.affectedRows} employee!\n`);
+      result && printTable(await db.getAllEmployees());
       break;
     case `View A Department's Budget`:
       let { deptid } = await ask.prompt({
