@@ -10,6 +10,6 @@
     "lib": ["es2015"]
   },
   "files": ["./node_modules/@types/node/index.d.ts"],
-  "include": ["*.ts", "test/*.ts", "db/*.ts", "db/controller.ts"],
+  "include": ["*.ts", "test/*.ts", "db/*.ts", "db/controller.ts", "types/*.ts"],
   "exclude": ["node_modules"]
 }

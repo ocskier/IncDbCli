@@ -1,5 +1,7 @@
 import { MysqlError } from 'mysql';
 
+import { IRole, IEmployee } from './types/schemaTypes';
+
 // External package imports
 const ask = require('inquirer');
 const connection = require('./db/connection');
@@ -95,11 +97,11 @@ const init = async () => {
   printTable([{ '  Jackson Inc. Employee Database ': null }]);
   while (keepRunning) {
     const { choice } = await ask.prompt(menu);
-    choice && (await getChart(choice));
+    choice && (await getChoice(choice));
   }
 };
 
-const getChart = async (val: string) => {
+const getChoice = async (val: string) => {
   let result, answers;
   switch (val) {
     case 'Get Departments':
@@ -142,6 +144,7 @@ const getChart = async (val: string) => {
       result && printTable(await db.getAllEmployees());
       break;
     case `Update an Employee's Data`:
+      printTable(await db.getAllEmployees());
       let { id, choice } = await ask.prompt([
         {
           message: makeIdQues('employee'),
@@ -158,20 +161,24 @@ const getChart = async (val: string) => {
       let updateId;
       switch (choice) {
         case 'Role':
-          let { roleId } = await ask.prompt({
-            message: makeIdQues('new role'),
-            name: 'roleId',
-            validate: validate.isInt,
+          let roleList = await db.getAllRoles();
+          let { role } = await ask.prompt({
+            message: 'Choose a role: ',
+            name: 'role',
+            type: 'list',
+            choices: roleList.map((row: IRole)=>row.title)
           });
-          updateId = roleId;
+          updateId = roleList.map((row: IRole)=>row.title).indexOf(role)+1;
           break;
         case 'Manager':
-          let { managerId } = await ask.prompt({
-            message: makeIdQues('new manager'),
-            name: 'managerId',
-            validate: validate.isInt,
+          let employeeList = await db.getAllEmployees();
+          let { manager } = await ask.prompt({
+            message: 'Enter a manager name: ',
+            name: 'manager',
+            type: 'list',
+            choices: employeeList.map((row: IEmployee)=> `${row.first} ${row.last}`)
           });
-          updateId = managerId;
+          updateId = employeeList.filter((row: IEmployee)=> manager.split(' ')[0] === row.first && manager.split(' ')[1] === row.last)[0].id;
           break;
       }
       result = await db[`updateEmployee${choice}`](
