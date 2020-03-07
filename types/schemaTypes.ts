@@ -1,14 +1,19 @@
 export interface IRole {
-    id: number;
-    title: string;
-    salary: number;
-    deptId: number;
+  id: number;
+  title: string;
+  salary: number;
+  deptId: number;
 }
 
 export interface IEmployee {
-    id: number;
-    first: string;
-    last: string;
-    roleId: number;
-    managerId: number;
+  id: number;
+  first: string;
+  last: string;
+  roleId: number;
+  managerId: number;
+}
+
+export interface IDept {
+  id: number;
+  name: string;
 }

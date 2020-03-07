@@ -1,6 +1,6 @@
 import { MysqlError } from 'mysql';
 
-import { IRole, IEmployee } from './types/schemaTypes';
+import { IRole, IEmployee, IDept } from './types/schemaTypes';
 
 // External package imports
 const ask = require('inquirer');
@@ -33,67 +33,31 @@ const makeIdQues = (text: string) => {
   return `What is the ${text} id?`;
 };
 
-const menu = [
-  {
-    message: 'Choose one of the following: ',
-    name: 'choice',
-    type: 'list',
-    choices: [
-      'Get Departments',
-      'Get Roles',
-      'Get Employees',
-      'Add A New Department',
-      'Add A New Role',
-      'Add A New Employee',
-      `Update an Employee's Data`,
-      `View All Employees of Manager`,
-      'Remove A Dept',
-      'Remove A Role',
-      'Remove An Employee',
-      `View A Department's Budget`,
-      'Done !',
-    ],
-  },
-];
-
-const roleQues = [
-  {
-    message: 'Role: ',
-    name: 'title',
-    validate: validate.isInput,
-  },
-  {
-    message: 'Salary: ',
-    name: 'salary',
-    validate: validate.isFloat,
-  },
-  {
-    message: 'Dept ID: ',
-    name: 'deptId',
-    validate: validate.isInt,
-  },
-];
-
-const employeeQues = [
-  {
-    message: 'Full Name: ',
-    name: 'name',
-    validate: validate.isInput,
-  },
-  {
-    message: 'Role Id: ',
-    name: 'roleId',
-    validate: validate.isInt,
-  },
-  {
-    message: 'Manager Id: ',
-    name: 'managerId',
-    validate: validate.isInt,
-  },
-];
-
 // Main functional logic
 const init = async () => {
+  const menu = [
+    {
+      message: 'Choose one of the following: ',
+      name: 'choice',
+      type: 'list',
+      choices: [
+        'Get Departments',
+        'Get Roles',
+        'Get Employees',
+        'Add A New Department',
+        'Add A New Role',
+        'Add A New Employee',
+        `Update an Employee's Data`,
+        `View All Employees of Manager`,
+        'Remove A Dept',
+        'Remove A Role',
+        'Remove An Employee',
+        `View A Department's Budget`,
+        'Done !',
+      ],
+    },
+  ];
+
   printTable([{ '  Jackson Inc. Employee Database ': null }]);
   while (keepRunning) {
     const { choice } = await ask.prompt(menu);
@@ -102,7 +66,58 @@ const init = async () => {
 };
 
 const getChoice = async (val: string) => {
+  const depts = await db.getAllDepts();
+  const roles = await db.getAllRoles();
+  const employees = await db.getAllEmployees();
+  const roleQues = [
+    {
+      message: 'Role: ',
+      name: 'title',
+      validate: validate.isInput,
+    },
+    {
+      message: 'Salary: ',
+      name: 'salary',
+      validate: validate.isFloat,
+    },
+    {
+      message: 'Dept ID: ',
+      name: 'deptId',
+      type: 'list',
+      choices: Array.from(depts, (dept: IDept) => {
+        return { name: dept.name, value: dept.id };
+      }),
+    },
+  ];
+
+  const employeeQues = [
+    {
+      message: 'Full Name: ',
+      name: 'name',
+      validate: validate.isInput,
+    },
+    {
+      message: 'Role Id: ',
+      name: 'roleId',
+      type: 'list',
+      choices: Array.from(roles, (role: IRole) => {
+        return { name: role.title, value: role.id };
+      }),
+    },
+    {
+      message: 'Manager Id: ',
+      name: 'managerId',
+      type: 'list',
+      choices: Array.from(employees, (employee: IEmployee) => {
+        return {
+          name: `${employee.first} ${employee.last}`,
+          value: employee.id,
+        };
+      }),
+    },
+  ];
   let result, answers;
+
   switch (val) {
     case 'Get Departments':
       result = await db.getAllDepts();
@@ -166,9 +181,9 @@ const getChoice = async (val: string) => {
             message: 'Choose a role: ',
             name: 'role',
             type: 'list',
-            choices: roleList.map((row: IRole)=>row.title)
+            choices: roleList.map((row: IRole) => row.title),
           });
-          updateId = roleList.map((row: IRole)=>row.title).indexOf(role)+1;
+          updateId = roleList.map((row: IRole) => row.title).indexOf(role) + 1;
           break;
         case 'Manager':
           let employeeList = await db.getAllEmployees();
@@ -176,9 +191,15 @@ const getChoice = async (val: string) => {
             message: 'Enter a manager name: ',
             name: 'manager',
             type: 'list',
-            choices: employeeList.map((row: IEmployee)=> `${row.first} ${row.last}`)
+            choices: employeeList.map(
+              (row: IEmployee) => `${row.first} ${row.last}`
+            ),
           });
-          updateId = employeeList.filter((row: IEmployee)=> manager.split(' ')[0] === row.first && manager.split(' ')[1] === row.last)[0].id;
+          updateId = employeeList.filter(
+            (row: IEmployee) =>
+              manager.split(' ')[0] === row.first &&
+              manager.split(' ')[1] === row.last
+          )[0].id;
           break;
       }
       result = await db[`updateEmployee${choice}`](

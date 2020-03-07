@@ -1,12 +1,12 @@
 INSERT INTO departments
     (name)
-VALUES('Human Resources'),
-    ('Finance'),
+VALUES('Finance'),
+    ('Human Resources'),
     ('Project Management');
 INSERT INTO roles
     (title,salary,deptId)
-VALUES('Manager', 120000, 1),
-    ('Accountant', 65000, 2),
+VALUES('Manager', 120000, 2),
+    ('Accountant', 65000, 1),
     ('Intern', 20000, 3);
 INSERT INTO employees
     (first,last,roleId,managerId)

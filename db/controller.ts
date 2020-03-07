@@ -32,15 +32,15 @@ module.exports = class db {
   }
 
   getAllEmployees() {
-    return this.promisifyConn(['SELECT * FROM employees']);
+    return this.promisifyConn(['SELECT * FROM employees ORDER BY id']);
   }
 
   getAllDepts() {
-    return this.promisifyConn(['SELECT * FROM departments']);
+    return this.promisifyConn(['SELECT * FROM departments ORDER BY id']);
   }
 
   getAllRoles() {
-    return this.promisifyConn(['SELECT * FROM roles']);
+    return this.promisifyConn(['SELECT * FROM roles ORDER BY id']);
   }
   addDept(dept: string) {
     return this.promisifyConn([
