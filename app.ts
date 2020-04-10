@@ -69,6 +69,7 @@ const getChoice = async (val: string) => {
   const depts = await db.getAllDepts();
   const roles = await db.getAllRoles();
   const employees = await db.getAllEmployees();
+
   const roleQues = [
     {
       message: 'Role: ',
@@ -120,8 +121,12 @@ const getChoice = async (val: string) => {
 
   switch (val) {
     case 'Get Departments':
-      result = await db.getAllDepts();
-      result && printTable(result);
+      try {
+        result = await db.getAllDepts();
+        result && printTable(result);
+      } catch (err) {
+        console.log(err);
+      }
       break;
     case 'Get Roles':
       result = await db.getAllRoles();

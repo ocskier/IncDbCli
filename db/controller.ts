@@ -24,7 +24,7 @@ module.exports = class db {
 
   promisifyConn(queryArr: string[] | any) {
     return new Promise((resolve, reject) => {
-      this.connection.query(...queryArr, function(err: MysqlError, res: any) {
+      this.connection.query(...queryArr, function (err: MysqlError, res: any) {
         if (err) return reject(err);
         return resolve(res);
       });
@@ -32,7 +32,9 @@ module.exports = class db {
   }
 
   getAllEmployees() {
-    return this.promisifyConn(['SELECT * FROM employees ORDER BY id']);
+    return this.promisifyConn([
+      'SELECT em1.id AS id ,em1.first AS first ,em1.last AS last, em2.first AS manager_first, em2.last AS manager_last, roles.title FROM employees em1 LEFT JOIN employees em2 ON em1.managerId = em2.id LEFT JOIN roles ON em1.roleId = roles.id',
+    ]);
   }
 
   getAllDepts() {
@@ -40,26 +42,34 @@ module.exports = class db {
   }
 
   getAllRoles() {
-    return this.promisifyConn(['SELECT * FROM roles ORDER BY id']);
+    return this.promisifyConn([
+      'SELECT roles.id,roles.title,roles.salary,departments.name FROM roles LEFT JOIN departments ON roles.deptID = departments.id;',
+    ]);
   }
   addDept(dept: string) {
     return this.promisifyConn([
       'INSERT INTO departments(name) VALUES(?)',
-      [dept],
+      dept,
     ]);
   }
 
   addRole(roleData: IRole) {
     return this.promisifyConn([
-      'INSERT INTO roles(title,salary,deptId) VALUES(?,?,?)',
-      [roleData.title, parseFloat(roleData.salary), parseInt(roleData.deptId)],
+      'INSERT INTO roles(??) VALUES(?,?,?)',
+      [
+        ['title', 'salary', 'deptId'],
+        roleData.title,
+        parseFloat(roleData.salary),
+        parseInt(roleData.deptId),
+      ],
     ]);
   }
 
   addEmployee(empData: IEmployee) {
     return this.promisifyConn([
-      'INSERT INTO employees(first,last,roleId,managerId) VALUES(?,?,?,?)',
+      'INSERT INTO employees(??) VALUES(?,?,?,?)',
       [
+        ['first', 'last', 'roleId', 'managerId'],
         empData.first,
         empData.last,
         parseInt(empData.roleId),
@@ -84,8 +94,8 @@ module.exports = class db {
 
   viewEmployeesByManager(id: number) {
     return this.promisifyConn([
-      `SELECT first,last,roleId FROM employees WHERE managerId=?`,
-      [id],
+      `SELECT ?? FROM employees WHERE managerId=?`,
+      [['first', 'last', 'roleId'], id],
     ]);
   }
   removeDept(id: number) {
