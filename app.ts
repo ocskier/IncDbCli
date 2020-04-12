@@ -54,7 +54,15 @@ const init = async () => {
     },
   ];
 
-  printTable([{ '  Jackson Inc. Employee Database ': null }]);
+  console.log(
+    '---------------------------------------------------------------'
+  );
+  console.log(
+    '                Jackson Inc. Employee Database                 '
+  );
+  console.log(
+    '---------------------------------------------------------------'
+  );
   while (keepRunning) {
     const { choice } = await ask.prompt(menu);
     choice && (await getChoice(choice));
@@ -297,14 +305,15 @@ const getChoice = async (val: string) => {
         }),
       });
       result = await db.viewDeptBudget(parseInt(deptid));
-      result &&
+      result.length &&
         console.log(
           `\n${result[0].name} Budget: $${result.reduce((a: any, b: any) => {
             return (a += b.salary);
           }, 0)}\n`
         );
+      !result.length && console.log('\nNo employees in this department!\n');
       break;
-    case 'Done !':
+    case 'DONE !':
       keepRunning = false;
       db.end();
       break;

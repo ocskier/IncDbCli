@@ -1,4 +1,4 @@
-import { MysqlError } from 'mysql';
+import { MysqlError, Connection } from 'mysql';
 
 const conn = require('./connection');
 
@@ -16,15 +16,21 @@ interface IEmployee {
 }
 
 module.exports = class db {
-  connection: any;
+  connection: Connection;
 
   constructor() {
     this.connection = conn;
   }
 
-  promisifyConn(queryArr: string[] | any) {
+  promisifyConn(
+    query: string,
+    values?: string | Array<string | string[] | number>
+  ) {
     return new Promise((resolve, reject) => {
-      this.connection.query(...queryArr, function (err: MysqlError, res: any) {
+      this.connection.query(query, values, function (
+        err: MysqlError,
+        res: any
+      ) {
         if (err) return reject(err);
         return resolve(res);
       });
@@ -32,91 +38,82 @@ module.exports = class db {
   }
 
   getAllEmployees() {
-    return this.promisifyConn([
-      'SELECT em1.id AS id ,em1.first AS first ,em1.last AS last, em2.first AS manager_first, em2.last AS manager_last, roles.title FROM employees em1 LEFT JOIN employees em2 ON em1.managerId = em2.id LEFT JOIN roles ON em1.roleId = roles.id',
-    ]);
+    return this.promisifyConn(
+      'SELECT em1.id AS id ,em1.first AS first ,em1.last AS last, em2.first AS manager_first, em2.last AS manager_last, roles.title FROM employees em1 LEFT JOIN employees em2 ON em1.managerId = em2.id LEFT JOIN roles ON em1.roleId = roles.id'
+    );
   }
 
   getAllDepts() {
-    return this.promisifyConn(['SELECT * FROM departments ORDER BY id']);
+    return this.promisifyConn('SELECT * FROM departments ORDER BY id');
   }
 
   getAllRoles() {
-    return this.promisifyConn([
-      'SELECT roles.id,roles.title,roles.salary,departments.name FROM roles LEFT JOIN departments ON roles.deptID = departments.id;',
-    ]);
+    return this.promisifyConn(
+      'SELECT roles.id,roles.title,roles.salary,departments.name FROM roles LEFT JOIN departments ON roles.deptID = departments.id;'
+    );
   }
   addDept(dept: string) {
-    return this.promisifyConn([
-      'INSERT INTO departments(name) VALUES(?)',
-      dept,
-    ]);
+    return this.promisifyConn('INSERT INTO departments(name) VALUES(?)', dept);
   }
 
   addRole(roleData: IRole) {
-    return this.promisifyConn([
-      'INSERT INTO roles(??) VALUES(?,?,?)',
-      [
-        ['title', 'salary', 'deptId'],
-        roleData.title,
-        parseFloat(roleData.salary),
-        parseInt(roleData.deptId),
-      ],
+    return this.promisifyConn('INSERT INTO roles(??) VALUES(?,?,?)', [
+      ['title', 'salary', 'deptId'],
+      roleData.title,
+      parseFloat(roleData.salary),
+      parseInt(roleData.deptId),
     ]);
   }
 
   addEmployee(empData: IEmployee) {
-    return this.promisifyConn([
-      'INSERT INTO employees(??) VALUES(?,?,?,?)',
-      [
-        ['first', 'last', 'roleId', 'managerId'],
-        empData.first,
-        empData.last,
-        parseInt(empData.roleId),
-        parseInt(empData.managerId),
-      ],
+    return this.promisifyConn('INSERT INTO employees(??) VALUES(?,?,?,?)', [
+      ['first', 'last', 'roleId', 'managerId'],
+      empData.first,
+      empData.last,
+      parseInt(empData.roleId),
+      parseInt(empData.managerId),
     ]);
   }
 
   updateEmployeeRole(role: number, id: number) {
-    return this.promisifyConn([
-      'UPDATE employees SET roleId=? WHERE id=?',
-      [role, id],
+    return this.promisifyConn('UPDATE employees SET roleId=? WHERE id=?', [
+      role,
+      id,
     ]);
   }
 
   updateEmployeeManager(manager: number, id: number) {
-    return this.promisifyConn([
-      'UPDATE employees SET managerId=? WHERE id=?',
-      [manager, id],
+    return this.promisifyConn('UPDATE employees SET managerId=? WHERE id=?', [
+      manager,
+      id,
     ]);
   }
 
   viewEmployeesByManager(id: number) {
-    return this.promisifyConn([
-      `SELECT ?? FROM employees WHERE managerId=?`,
-      [['first', 'last', 'roleId'], id],
+    return this.promisifyConn(`SELECT ?? FROM employees WHERE managerId=?`, [
+      ['first', 'last', 'roleId'],
+      id,
     ]);
   }
   removeDept(id: number) {
-    return this.promisifyConn([`DELETE FROM departments WHERE id=?`, [id]]);
+    return this.promisifyConn(`DELETE FROM departments WHERE id=?`, [id]);
   }
 
   removeRole(id: number) {
-    return this.promisifyConn([`DELETE FROM roles WHERE id=?`, [id]]);
+    return this.promisifyConn(`DELETE FROM roles WHERE id=?`, [id]);
   }
 
   removeEmployee(id: number) {
-    return this.promisifyConn([`DELETE FROM employees WHERE id=?`, id]);
+    return this.promisifyConn(`DELETE FROM employees WHERE id=?`, [id]);
   }
 
   viewDeptBudget(id: number) {
-    return this.promisifyConn([
+    return this.promisifyConn(
       `SELECT departments.id,departments.name,roles.title,roles.salary,roles.id,employees.first,employees.last
        FROM ((departments INNER JOIN roles ON departments.id = roles.deptId)
        INNER JOIN employees ON roles.id = employees.roleId) WHERE departments.id=?`,
-      [id],
-    ]);
+      [id]
+    );
   }
   end() {
     this.connection.end();
