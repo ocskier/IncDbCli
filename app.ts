@@ -29,10 +29,6 @@ const validate = {
   },
 };
 
-const makeIdQues = (text: string) => {
-  return `What is the ${text} id?`;
-};
-
 // Main functional logic
 const init = async () => {
   const menu = [
@@ -53,7 +49,7 @@ const init = async () => {
         'Remove A Role',
         'Remove An Employee',
         `View A Department's Budget`,
-        'Done !',
+        'DONE !',
       ],
     },
   ];
@@ -66,9 +62,9 @@ const init = async () => {
 };
 
 const getChoice = async (val: string) => {
-  const depts = await db.getAllDepts();
-  const roles = await db.getAllRoles();
-  const employees = await db.getAllEmployees();
+  let depts = await db.getAllDepts();
+  let roles = await db.getAllRoles();
+  let employees = await db.getAllEmployees();
 
   const roleQues = [
     {
@@ -164,12 +160,18 @@ const getChoice = async (val: string) => {
       result && printTable(await db.getAllEmployees());
       break;
     case `Update an Employee's Data`:
-      printTable(await db.getAllEmployees());
+      employees = await db.getAllEmployees();
       let { id, choice } = await ask.prompt([
         {
-          message: makeIdQues('employee'),
+          message: 'Enter an employee name:',
           name: 'id',
-          validate: validate.isInt,
+          type: 'list',
+          choices: employees.map((employee: IEmployee) => {
+            return {
+              name: `${employee.first} ${employee.last}`,
+              value: employee.id,
+            };
+          }),
         },
         {
           message: 'Choose which to update: ',
@@ -181,30 +183,34 @@ const getChoice = async (val: string) => {
       let updateId;
       switch (choice) {
         case 'Role':
-          let roleList = await db.getAllRoles();
+          roles = await db.getAllRoles();
           let { role } = await ask.prompt({
             message: 'Choose a role: ',
             name: 'role',
             type: 'list',
-            choices: roleList.map((row: IRole) => row.title),
+            choices: roles.map((row: IRole) => {
+              return {
+                name: row.title,
+                value: row.id,
+              };
+            }),
           });
-          updateId = roleList.map((row: IRole) => row.title).indexOf(role) + 1;
+          updateId = role;
           break;
         case 'Manager':
-          let employeeList = await db.getAllEmployees();
+          employees = await db.getAllEmployees();
           let { manager } = await ask.prompt({
             message: 'Enter a manager name: ',
             name: 'manager',
             type: 'list',
-            choices: employeeList.map(
-              (row: IEmployee) => `${row.first} ${row.last}`
-            ),
+            choices: employees.map((row: IEmployee) => {
+              return {
+                name: `${row.first} ${row.last}`,
+                value: row.id,
+              };
+            }),
           });
-          updateId = employeeList.filter(
-            (row: IEmployee) =>
-              manager.split(' ')[0] === row.first &&
-              manager.split(' ')[1] === row.last
-          )[0].id;
+          updateId = manager;
           break;
       }
       result = await db[`updateEmployee${choice}`](
@@ -215,10 +221,17 @@ const getChoice = async (val: string) => {
       result && printTable(await db.getAllEmployees());
       break;
     case `View All Employees of Manager`:
+      employees = await db.getAllEmployees();
       let { managerId } = await ask.prompt({
-        message: makeIdQues('manager'),
+        message: 'Enter a manager name:',
         name: 'managerId',
-        validate: validate.isInt,
+        type: 'list',
+        choices: employees.map((employee: IEmployee) => {
+          return {
+            name: `${employee.first} ${employee.last}`,
+            value: employee.id,
+          };
+        }),
       });
       result = await db.viewEmployeesByManager(parseInt(managerId));
       result.length > 0
@@ -226,40 +239,62 @@ const getChoice = async (val: string) => {
         : console.log('\nEmployee does not have any direct reports!\n');
       break;
     case 'Remove A Dept':
+      depts = await db.getAllDepts();
       let { dept_id } = await ask.prompt({
-        message: makeIdQues('department'),
+        message: 'Enter the department name:',
         name: 'dept_id',
-        validate: validate.isInt,
+        type: 'list',
+        choices: depts.map((dept: IDept) => {
+          return { name: dept.name, value: dept.id };
+        }),
       });
       result = await db.removeDept(parseInt(dept_id));
       result && console.log(`\nDeleted ${result.affectedRows} department!\n`);
       result && printTable(await db.getAllDepts());
       break;
     case 'Remove A Role':
+      roles = await db.getAllRoles();
       let { role_id } = await ask.prompt({
-        message: makeIdQues('role'),
+        message: 'Enter the role name:',
         name: 'role_id',
-        validate: validate.isInt,
+        type: 'list',
+        choices: roles.map((row: IRole) => {
+          return {
+            name: row.title,
+            value: row.id,
+          };
+        }),
       });
       result = await db.removeRole(parseInt(role_id));
       result && console.log(`\nDeleted ${result.affectedRows} role!\n`);
       result && printTable(await db.getAllRoles());
       break;
     case 'Remove An Employee':
+      employees = await db.getAllEmployees();
       let { emp_id } = await ask.prompt({
-        message: makeIdQues('employee'),
+        message: 'Enter an employee name: ',
         name: 'emp_id',
-        validate: validate.isInt,
+        type: 'list',
+        choices: employees.map((employee: IEmployee) => {
+          return {
+            name: `${employee.first} ${employee.last}`,
+            value: employee.id,
+          };
+        }),
       });
       result = await db.removeEmployee(parseInt(emp_id));
       result && console.log(`\nDeleted ${result.affectedRows} employee!\n`);
       result && printTable(await db.getAllEmployees());
       break;
     case `View A Department's Budget`:
+      depts = await db.getAllDepts();
       let { deptid } = await ask.prompt({
-        message: makeIdQues('department'),
+        message: 'Enter the department name: ',
         name: 'deptid',
-        validate: validate.isInt,
+        type: 'list',
+        choices: depts.map((dept: IDept) => {
+          return { name: dept.name, value: dept.id };
+        }),
       });
       result = await db.viewDeptBudget(parseInt(deptid));
       result &&
