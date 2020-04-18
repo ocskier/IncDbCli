@@ -7,6 +7,8 @@ import { MysqlError } from 'mysql';
 // Internal module imports
 const connection = require('./db/connection');
 const Database = require('./db/controller');
+
+// Import types for models
 import { IRole, IEmployee, IDept } from './types/schemaTypes';
 
 // const validator = require('validator');
