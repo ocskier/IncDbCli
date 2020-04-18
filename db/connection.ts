@@ -1,13 +1,12 @@
 require('dotenv').config();
 
 const mysql = require('mysql');
-import { MysqlError } from 'mysql';
 
 const options = {
   host: 'localhost',
   port: 3306,
-  user: process.env.USER_NAME,
-  password: process.env.MY_PASSWORD,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
   database: 'company_db',
 };
 

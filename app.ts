@@ -1,15 +1,16 @@
-import { MysqlError } from 'mysql';
-
-import { IRole, IEmployee, IDept } from './types/schemaTypes';
-
 // External package imports
 const ask = require('inquirer');
-const connection = require('./db/connection');
 const { printTable } = require('console-table-printer');
+const cFonts = require('cfonts');
+import { MysqlError } from 'mysql';
+
+// Internal module imports
+const connection = require('./db/connection');
+const Database = require('./db/controller');
+import { IRole, IEmployee, IDept } from './types/schemaTypes';
 
 // const validator = require('validator');
 
-const Database = require('./db/controller');
 const db = new Database();
 
 let keepRunning: boolean = true;
@@ -55,14 +56,26 @@ const init = async () => {
   ];
 
   console.log(
-    '---------------------------------------------------------------'
+    '--------------------------------------------------------------------------------'
   );
+  cFonts.say('Jackson Inc. Directory', {
+    font: 'tiny',
+    align: 'left',
+    colors: ['white'],
+    background: 'transparent',
+    letterSpacing: 1,
+    lineHeight: 1,
+    space: false,
+    maxLength: '0',
+    gradient: 'green,blue',
+    independentGradient: false,
+    transitionGradient: false,
+    env: 'node',
+  });
   console.log(
-    '                Jackson Inc. Employee Database                 '
+    '--------------------------------------------------------------------------------'
   );
-  console.log(
-    '---------------------------------------------------------------'
-  );
+
   while (keepRunning) {
     const { choice } = await ask.prompt(menu);
     choice && (await getChoice(choice));
