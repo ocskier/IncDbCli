@@ -138,56 +138,114 @@ const getChoice = async (val: string) => {
   ];
   let result, answers;
 
-  switch (val) {
-    case 'Get Departments':
-      try {
+  try {
+    switch (val) {
+      case 'Get Departments':
         result = await db.getAllDepts();
         result && printTable(result);
-      } catch (err) {
-        console.log(err);
-      }
-      break;
-    case 'Get Roles':
-      result = await db.getAllRoles();
-      result && printTable(result);
-      break;
-    case 'Get Employees':
-      result = await db.getAllEmployees();
-      result && printTable(result);
-      break;
-    case 'Add A New Department':
-      const { deptName } = await ask.prompt([
-        {
-          message: 'Department Name: ',
-          name: 'deptName',
-          validate: validate.isInput,
-        },
-      ]);
-      result = await db.addDept(deptName);
-      result && console.log(`\nAdded ${result.affectedRows} new department!\n`);
-      result && printTable(await db.getAllDepts());
-      break;
-    case 'Add A New Role':
-      answers = await ask.prompt(roleQues);
-      result = await db.addRole(answers);
-      result && console.log(`\nAdded ${result.affectedRows} new role!\n`);
-      result && printTable(await db.getAllRoles());
-      break;
-    case 'Add A New Employee':
-      answers = await ask.prompt(employeeQues);
-      answers.first = answers.name.split(' ')[0];
-      answers.last = answers.name.split(' ')[1];
-      delete answers.name;
-      result = await db.addEmployee(answers);
-      result && console.log(`\nAdded ${result.affectedRows} new employee!\n`);
-      result && printTable(await db.getAllEmployees());
-      break;
-    case `Update an Employee's Data`:
-      employees = await db.getAllEmployees();
-      let { id, choice } = await ask.prompt([
-        {
-          message: 'Enter an employee name:',
-          name: 'id',
+        break;
+      case 'Get Roles':
+        result = await db.getAllRoles();
+        result && printTable(result);
+        break;
+      case 'Get Employees':
+        result = await db.getAllEmployees();
+        result && printTable(result);
+        break;
+      case 'Add A New Department':
+        const { deptName } = await ask.prompt([
+          {
+            message: 'Department Name: ',
+            name: 'deptName',
+            validate: validate.isInput,
+          },
+        ]);
+        result = await db.addDept(deptName);
+        result &&
+          console.log(`\nAdded ${result.affectedRows} new department!\n`);
+        result && printTable(await db.getAllDepts());
+        break;
+      case 'Add A New Role':
+        answers = await ask.prompt(roleQues);
+        result = await db.addRole(answers);
+        result && console.log(`\nAdded ${result.affectedRows} new role!\n`);
+        result && printTable(await db.getAllRoles());
+        break;
+      case 'Add A New Employee':
+        answers = await ask.prompt(employeeQues);
+        answers.first = answers.name.split(' ')[0];
+        answers.last = answers.name.split(' ')[1];
+        delete answers.name;
+        result = await db.addEmployee(answers);
+        result && console.log(`\nAdded ${result.affectedRows} new employee!\n`);
+        result && printTable(await db.getAllEmployees());
+        break;
+      case `Update an Employee's Data`:
+        employees = await db.getAllEmployees();
+        let { id, choice } = await ask.prompt([
+          {
+            message: 'Enter an employee name:',
+            name: 'id',
+            type: 'list',
+            choices: employees.map((employee: IEmployee) => {
+              return {
+                name: `${employee.first} ${employee.last}`,
+                value: employee.id,
+              };
+            }),
+          },
+          {
+            message: 'Choose which to update: ',
+            type: 'list',
+            choices: ['Role', 'Manager'],
+            name: 'choice',
+          },
+        ]);
+        let updateId;
+        switch (choice) {
+          case 'Role':
+            roles = await db.getAllRoles();
+            let { role } = await ask.prompt({
+              message: 'Choose a role: ',
+              name: 'role',
+              type: 'list',
+              choices: roles.map((row: IRole) => {
+                return {
+                  name: row.title,
+                  value: row.id,
+                };
+              }),
+            });
+            updateId = role;
+            break;
+          case 'Manager':
+            employees = await db.getAllEmployees();
+            let { manager } = await ask.prompt({
+              message: 'Enter a manager name: ',
+              name: 'manager',
+              type: 'list',
+              choices: employees.map((row: IEmployee) => {
+                return {
+                  name: `${row.first} ${row.last}`,
+                  value: row.id,
+                };
+              }),
+            });
+            updateId = manager;
+            break;
+        }
+        result = await db[`updateEmployee${choice}`](
+          parseInt(updateId),
+          parseInt(id)
+        );
+        result && console.log(`\nUpdated ${result.affectedRows} employee!\n`);
+        result && printTable(await db.getAllEmployees());
+        break;
+      case `View All Employees of Manager`:
+        employees = await db.getAllEmployees();
+        let { managerId } = await ask.prompt({
+          message: 'Enter a manager name:',
+          name: 'managerId',
           type: 'list',
           choices: employees.map((employee: IEmployee) => {
             return {
@@ -195,143 +253,86 @@ const getChoice = async (val: string) => {
               value: employee.id,
             };
           }),
-        },
-        {
-          message: 'Choose which to update: ',
+        });
+        result = await db.viewEmployeesByManager(parseInt(managerId));
+        result.length > 0
+          ? printTable(result)
+          : console.log('\nEmployee does not have any direct reports!\n');
+        break;
+      case 'Remove A Dept':
+        depts = await db.getAllDepts();
+        let { dept_id } = await ask.prompt({
+          message: 'Enter the department name:',
+          name: 'dept_id',
           type: 'list',
-          choices: ['Role', 'Manager'],
-          name: 'choice',
-        },
-      ]);
-      let updateId;
-      switch (choice) {
-        case 'Role':
-          roles = await db.getAllRoles();
-          let { role } = await ask.prompt({
-            message: 'Choose a role: ',
-            name: 'role',
-            type: 'list',
-            choices: roles.map((row: IRole) => {
-              return {
-                name: row.title,
-                value: row.id,
-              };
-            }),
-          });
-          updateId = role;
-          break;
-        case 'Manager':
-          employees = await db.getAllEmployees();
-          let { manager } = await ask.prompt({
-            message: 'Enter a manager name: ',
-            name: 'manager',
-            type: 'list',
-            choices: employees.map((row: IEmployee) => {
-              return {
-                name: `${row.first} ${row.last}`,
-                value: row.id,
-              };
-            }),
-          });
-          updateId = manager;
-          break;
-      }
-      result = await db[`updateEmployee${choice}`](
-        parseInt(updateId),
-        parseInt(id)
-      );
-      result && console.log(`\nUpdated ${result.affectedRows} employee!\n`);
-      result && printTable(await db.getAllEmployees());
-      break;
-    case `View All Employees of Manager`:
-      employees = await db.getAllEmployees();
-      let { managerId } = await ask.prompt({
-        message: 'Enter a manager name:',
-        name: 'managerId',
-        type: 'list',
-        choices: employees.map((employee: IEmployee) => {
-          return {
-            name: `${employee.first} ${employee.last}`,
-            value: employee.id,
-          };
-        }),
-      });
-      result = await db.viewEmployeesByManager(parseInt(managerId));
-      result.length > 0
-        ? printTable(result)
-        : console.log('\nEmployee does not have any direct reports!\n');
-      break;
-    case 'Remove A Dept':
-      depts = await db.getAllDepts();
-      let { dept_id } = await ask.prompt({
-        message: 'Enter the department name:',
-        name: 'dept_id',
-        type: 'list',
-        choices: depts.map((dept: IDept) => {
-          return { name: dept.name, value: dept.id };
-        }),
-      });
-      result = await db.removeDept(parseInt(dept_id));
-      result && console.log(`\nDeleted ${result.affectedRows} department!\n`);
-      result && printTable(await db.getAllDepts());
-      break;
-    case 'Remove A Role':
-      roles = await db.getAllRoles();
-      let { role_id } = await ask.prompt({
-        message: 'Enter the role name:',
-        name: 'role_id',
-        type: 'list',
-        choices: roles.map((row: IRole) => {
-          return {
-            name: row.title,
-            value: row.id,
-          };
-        }),
-      });
-      result = await db.removeRole(parseInt(role_id));
-      result && console.log(`\nDeleted ${result.affectedRows} role!\n`);
-      result && printTable(await db.getAllRoles());
-      break;
-    case 'Remove An Employee':
-      employees = await db.getAllEmployees();
-      let { emp_id } = await ask.prompt({
-        message: 'Enter an employee name: ',
-        name: 'emp_id',
-        type: 'list',
-        choices: employees.map((employee: IEmployee) => {
-          return {
-            name: `${employee.first} ${employee.last}`,
-            value: employee.id,
-          };
-        }),
-      });
-      result = await db.removeEmployee(parseInt(emp_id));
-      result && console.log(`\nDeleted ${result.affectedRows} employee!\n`);
-      result && printTable(await db.getAllEmployees());
-      break;
-    case `View A Department's Budget`:
-      depts = await db.getAllDepts();
-      let { deptid } = await ask.prompt({
-        message: 'Enter the department name: ',
-        name: 'deptid',
-        type: 'list',
-        choices: depts.map((dept: IDept) => {
-          return { name: dept.name, value: dept.id };
-        }),
-      });
-      result = await db.viewDeptBudget(parseInt(deptid));
-      result.length &&
-        console.log(
-          `\n${result[0].name} Budget: $${result.reduce((a: any, b: any) => {
-            return (a += b.salary);
-          }, 0)}\n`
-        );
-      !result.length && console.log('\nNo employees in this department!\n');
-      break;
-    case 'DONE !':
-      keepRunning = false;
-      db.end();
-      break;
+          choices: depts.map((dept: IDept) => {
+            return { name: dept.name, value: dept.id };
+          }),
+        });
+        result = await db.removeDept(parseInt(dept_id));
+        result && console.log(`\nDeleted ${result.affectedRows} department!\n`);
+        result && printTable(await db.getAllDepts());
+        break;
+      case 'Remove A Role':
+        roles = await db.getAllRoles();
+        let { role_id } = await ask.prompt({
+          message: 'Enter the role name:',
+          name: 'role_id',
+          type: 'list',
+          choices: roles.map((row: IRole) => {
+            return {
+              name: row.title,
+              value: row.id,
+            };
+          }),
+        });
+        result = await db.removeRole(parseInt(role_id));
+        result && console.log(`\nDeleted ${result.affectedRows} role!\n`);
+        result && printTable(await db.getAllRoles());
+        break;
+      case 'Remove An Employee':
+        employees = await db.getAllEmployees();
+        let { emp_id } = await ask.prompt({
+          message: 'Enter an employee name: ',
+          name: 'emp_id',
+          type: 'list',
+          choices: employees.map((employee: IEmployee) => {
+            return {
+              name: `${employee.first} ${employee.last}`,
+              value: employee.id,
+            };
+          }),
+        });
+        result = await db.removeEmployee(parseInt(emp_id));
+        result && console.log(`\nDeleted ${result.affectedRows} employee!\n`);
+        result && printTable(await db.getAllEmployees());
+        break;
+      case `View A Department's Budget`:
+        depts = await db.getAllDepts();
+        let { deptid } = await ask.prompt({
+          message: 'Enter the department name: ',
+          name: 'deptid',
+          type: 'list',
+          choices: depts.map((dept: IDept) => {
+            return { name: dept.name, value: dept.id };
+          }),
+        });
+        result = await db.viewDeptBudget(parseInt(deptid));
+        result.length &&
+          console.log(
+            `\n${result[0].name} Budget: $${result.reduce((a: any, b: any) => {
+              return (a += b.salary);
+            }, 0)}\n`
+          );
+        !result.length && console.log('\nNo employees in this department!\n');
+        break;
+      case 'DONE !':
+        keepRunning = false;
+        db.end();
+        break;
+    }
+  } catch (err) {
+    console.log(err);
   }
 };
 
