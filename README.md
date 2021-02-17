@@ -2,7 +2,7 @@
 
 A company directory CLI using Node, Inquirer, and a SQL database with Typescript
 
-![IncDbCLI](Capture.PNG)
+![IncDbCLI](images/Capture.PNG)
 
 ## Prerequisites
 
