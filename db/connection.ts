@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const mysql = require('mysql');
 
-const options = {
+const options = process.env.LOCALHOST_URL || {
   host: 'localhost',
   port: 3306,
   user: process.env.USER,

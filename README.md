@@ -2,10 +2,13 @@
 
 A company directory CLI using Node, Inquirer, and a SQL database with Typescript
 
-<img width=200 height=200 src="https://avatars1.githubusercontent.com/u/36890724?v=4">
+![IncDbCLI](Capture.PNG)
 
 ## Prerequisites
 
+<a href="https://nodejs.org/en/"><img width=80 height=80 src="images/logo.svg"></a>
+
+<a href="https://www.mysql.com/"><img width=80 height=80 src="https://download.logo.wine/logo/MySQL/MySQL-Logo.wine.png"></a>
 ## Installation
 
 Use Node JS command line to install packages
