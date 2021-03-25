@@ -141,16 +141,13 @@ const getChoice = async (val: string) => {
   try {
     switch (val) {
       case 'Get Departments':
-        result = await db.getAllDepts();
-        result && printTable(result);
+        depts && printTable(depts);
         break;
       case 'Get Roles':
-        result = await db.getAllRoles();
-        result && printTable(result);
+        roles && printTable(roles);
         break;
       case 'Get Employees':
-        result = await db.getAllEmployees();
-        result && printTable(result);
+        employees && printTable(employees);
         break;
       case 'Add A New Department':
         const { deptName } = await ask.prompt([
@@ -181,7 +178,6 @@ const getChoice = async (val: string) => {
         result && printTable(await db.getAllEmployees());
         break;
       case `Update an Employee's Data`:
-        employees = await db.getAllEmployees();
         let { id, choice } = await ask.prompt([
           {
             message: 'Enter an employee name:',
@@ -204,7 +200,6 @@ const getChoice = async (val: string) => {
         let updateId;
         switch (choice) {
           case 'Role':
-            roles = await db.getAllRoles();
             let { role } = await ask.prompt({
               message: 'Choose a role: ',
               name: 'role',
@@ -219,7 +214,6 @@ const getChoice = async (val: string) => {
             updateId = role;
             break;
           case 'Manager':
-            employees = await db.getAllEmployees();
             let { manager } = await ask.prompt({
               message: 'Enter a manager name: ',
               name: 'manager',
@@ -242,7 +236,6 @@ const getChoice = async (val: string) => {
         result && printTable(await db.getAllEmployees());
         break;
       case `View All Employees of Manager`:
-        employees = await db.getAllEmployees();
         let { managerId } = await ask.prompt({
           message: 'Enter a manager name:',
           name: 'managerId',
@@ -260,7 +253,6 @@ const getChoice = async (val: string) => {
           : console.log('\nEmployee does not have any direct reports!\n');
         break;
       case 'Remove A Dept':
-        depts = await db.getAllDepts();
         let { dept_id } = await ask.prompt({
           message: 'Enter the department name:',
           name: 'dept_id',
@@ -274,7 +266,6 @@ const getChoice = async (val: string) => {
         result && printTable(await db.getAllDepts());
         break;
       case 'Remove A Role':
-        roles = await db.getAllRoles();
         let { role_id } = await ask.prompt({
           message: 'Enter the role name:',
           name: 'role_id',
@@ -291,7 +282,6 @@ const getChoice = async (val: string) => {
         result && printTable(await db.getAllRoles());
         break;
       case 'Remove An Employee':
-        employees = await db.getAllEmployees();
         let { emp_id } = await ask.prompt({
           message: 'Enter an employee name: ',
           name: 'emp_id',
@@ -308,7 +298,6 @@ const getChoice = async (val: string) => {
         result && printTable(await db.getAllEmployees());
         break;
       case `View A Department's Budget`:
-        depts = await db.getAllDepts();
         let { deptid } = await ask.prompt({
           message: 'Enter the department name: ',
           name: 'deptid',
