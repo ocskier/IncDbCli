@@ -5,15 +5,12 @@ const cFonts = require('cfonts');
 import { MysqlError } from 'mysql';
 
 // Internal module imports
-const connection = require('./db/connection');
-const Database = require('./db/controller');
+const db = require('./controllers');
 
 // Import types for models
 import { IRole, IEmployee, IDept } from './types/schemaTypes';
 
 // const validator = require('validator');
-
-const db = new Database();
 
 let keepRunning: boolean = true;
 
@@ -85,9 +82,9 @@ const init = async () => {
 };
 
 const getChoice = async (val: string) => {
-  let depts = await db.getAllDepts();
-  let roles = await db.getAllRoles();
-  let employees = await db.getAllEmployees();
+  let depts = await db.Dept.getAllDepts();
+  let roles = await db.Role.getAllRoles();
+  let employees = await db.Employee.getAllEmployees();
 
   const roleQues = [
     {
@@ -157,25 +154,25 @@ const getChoice = async (val: string) => {
             validate: validate.isInput,
           },
         ]);
-        result = await db.addDept(deptName);
+        result = await db.Dept.addDept(deptName);
         result &&
           console.log(`\nAdded ${result.affectedRows} new department!\n`);
-        result && printTable(await db.getAllDepts());
+        result && printTable(await db.Dept.getAllDepts());
         break;
       case 'Add A New Role':
         answers = await ask.prompt(roleQues);
-        result = await db.addRole(answers);
+        result = await db.Role.addRole(answers);
         result && console.log(`\nAdded ${result.affectedRows} new role!\n`);
-        result && printTable(await db.getAllRoles());
+        result && printTable(await db.Role.getAllRoles());
         break;
       case 'Add A New Employee':
         answers = await ask.prompt(employeeQues);
         answers.first = answers.name.split(' ')[0];
         answers.last = answers.name.split(' ')[1];
         delete answers.name;
-        result = await db.addEmployee(answers);
+        result = await db.Employee.addEmployee(answers);
         result && console.log(`\nAdded ${result.affectedRows} new employee!\n`);
-        result && printTable(await db.getAllEmployees());
+        result && printTable(await db.Employee.getAllEmployees());
         break;
       case `Update an Employee's Data`:
         let { id, choice } = await ask.prompt([
@@ -228,12 +225,12 @@ const getChoice = async (val: string) => {
             updateId = manager;
             break;
         }
-        result = await db[`updateEmployee${choice}`](
+        result = await db.Employee[`updateEmployee${choice}`](
           parseInt(updateId),
           parseInt(id)
         );
         result && console.log(`\nUpdated ${result.affectedRows} employee!\n`);
-        result && printTable(await db.getAllEmployees());
+        result && printTable(await db.Employee.getAllEmployees());
         break;
       case `View All Employees of Manager`:
         let { managerId } = await ask.prompt({
@@ -247,7 +244,7 @@ const getChoice = async (val: string) => {
             };
           }),
         });
-        result = await db.viewEmployeesByManager(parseInt(managerId));
+        result = await db.Employee.viewEmployeesByManager(parseInt(managerId));
         result.length > 0
           ? printTable(result)
           : console.log('\nEmployee does not have any direct reports!\n');
@@ -261,9 +258,9 @@ const getChoice = async (val: string) => {
             return { name: dept.name, value: dept.id };
           }),
         });
-        result = await db.removeDept(parseInt(dept_id));
+        result = await db.Dept.removeDept(parseInt(dept_id));
         result && console.log(`\nDeleted ${result.affectedRows} department!\n`);
-        result && printTable(await db.getAllDepts());
+        result && printTable(await db.Dept.getAllDepts());
         break;
       case 'Remove A Role':
         let { role_id } = await ask.prompt({
@@ -277,9 +274,9 @@ const getChoice = async (val: string) => {
             };
           }),
         });
-        result = await db.removeRole(parseInt(role_id));
+        result = await db.Role.removeRole(parseInt(role_id));
         result && console.log(`\nDeleted ${result.affectedRows} role!\n`);
-        result && printTable(await db.getAllRoles());
+        result && printTable(await db.Role.getAllRoles());
         break;
       case 'Remove An Employee':
         let { emp_id } = await ask.prompt({
@@ -293,9 +290,9 @@ const getChoice = async (val: string) => {
             };
           }),
         });
-        result = await db.removeEmployee(parseInt(emp_id));
+        result = await db.Employee.removeEmployee(parseInt(emp_id));
         result && console.log(`\nDeleted ${result.affectedRows} employee!\n`);
-        result && printTable(await db.getAllEmployees());
+        result && printTable(await db.Employee.getAllEmployees());
         break;
       case `View A Department's Budget`:
         let { deptid } = await ask.prompt({
@@ -306,7 +303,7 @@ const getChoice = async (val: string) => {
             return { name: dept.name, value: dept.id };
           }),
         });
-        result = await db.viewDeptBudget(parseInt(deptid));
+        result = await db.Dept.viewDeptBudget(parseInt(deptid));
         result.length &&
           console.log(
             `\n${result[0].name} Budget: $${result.reduce((a: any, b: any) => {
@@ -325,9 +322,9 @@ const getChoice = async (val: string) => {
   }
 };
 
-connection.connect((err: MysqlError) => {
+db.connection.connect((err: MysqlError) => {
   if (err) throw err;
-  console.log(`Connected as id: ${connection.threadId}`);
+  console.log(`Connected as id: ${db.connection.threadId}`);
   init();
 });
 
