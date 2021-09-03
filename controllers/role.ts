@@ -1,6 +1,6 @@
 const conn = require('../db/connection');
 
-interface IRole {
+interface IRoleInput {
   title: string;
   salary: string;
   deptId: string;
@@ -16,7 +16,7 @@ class Role {
       'SELECT roles.id,roles.title,roles.salary,departments.name FROM roles LEFT JOIN departments ON roles.deptID = departments.id;'
     );
   }
-  addRole(roleData: IRole) {
+  addRole(roleData: IRoleInput) {
     return this.db.asyncQuery('INSERT INTO roles(??) VALUES(?,?,?)', [
       ['title', 'salary', 'deptId'],
       roleData.title,

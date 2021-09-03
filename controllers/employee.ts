@@ -1,6 +1,6 @@
 const conn = require('../db/connection');
 
-interface IEmployee {
+interface IEmployeeInput {
   first: string;
   last: string;
   roleId: string;
@@ -18,7 +18,7 @@ class Employee {
     );
   }
 
-  addEmployee(empData: IEmployee) {
+  addEmployee(empData: IEmployeeInput) {
     return this.db.asyncQuery('INSERT INTO employees(??) VALUES(?,?,?,?)', [
       ['first', 'last', 'roleId', 'managerId'],
       empData.first,
