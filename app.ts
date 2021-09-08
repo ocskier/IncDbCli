@@ -13,7 +13,6 @@ const {
 const {
   employeeQues,
   updateEmployeeQues,
-  updateEmployeeRoleQues,
   getManagerQues,
   getEmployeeQues,
 } = require('./views/employee');
@@ -120,8 +119,8 @@ const getChoice = async (val: string) => {
         let updateId;
         switch (choice) {
           case 'Role':
-            let { role } = await ask.prompt(updateEmployeeRoleQues(roles));
-            updateId = role;
+            let { roleId } = await ask.prompt(getRoleQues(roles));
+            updateId = roleId;
             break;
           case 'Manager':
             let { managerId } = await ask.prompt(getManagerQues(employees));

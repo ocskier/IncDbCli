@@ -50,20 +50,6 @@ const updateEmployeeQues = (employees: [IEmployee]) => [
   },
 ];
 
-const updateEmployeeRoleQues = (roles: [IRole]) => [
-  {
-    message: 'Choose a role: ',
-    name: 'role',
-    type: 'list',
-    choices: roles.map((row: IRole) => {
-      return {
-        name: row.title,
-        value: row.id,
-      };
-    }),
-  },
-];
-
 const getManagerQues = (employees: [IEmployee]) => [
   {
     message: 'Enter a manager name:',
@@ -95,7 +81,6 @@ const getEmployeeQues = (employees: [IEmployee]) => [
 module.exports = {
   employeeQues,
   updateEmployeeQues,
-  updateEmployeeRoleQues,
   getManagerQues,
   getEmployeeQues,
 };
