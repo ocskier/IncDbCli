@@ -24,10 +24,10 @@ const roleQues = (depts: [IDept]) => [
   },
 ];
 
-const removeRoleQues = (roles: [IRole]) => [
+const getRoleQues = (roles: [IRole]) => [
   {
     message: 'Enter the role name:',
-    name: 'role_id',
+    name: 'roleId',
     type: 'list',
     choices: roles.map((row: IRole) => {
       return {
@@ -38,4 +38,4 @@ const removeRoleQues = (roles: [IRole]) => [
   },
 ];
 
-module.exports = { roleQues, removeRoleQues };
+module.exports = { roleQues, getRoleQues };

@@ -64,21 +64,7 @@ const updateEmployeeRoleQues = (roles: [IRole]) => [
   },
 ];
 
-const updateEmployeeManagerQues = (employees: [IEmployee]) => [
-  {
-    message: 'Enter a manager name: ',
-    name: 'manager',
-    type: 'list',
-    choices: employees.map((row: IEmployee) => {
-      return {
-        name: `${row.first} ${row.last}`,
-        value: row.id,
-      };
-    }),
-  },
-];
-
-const viewAllManagerEmployeesQues = (employees: [IEmployee]) => [
+const getManagerQues = (employees: [IEmployee]) => [
   {
     message: 'Enter a manager name:',
     name: 'managerId',
@@ -92,10 +78,10 @@ const viewAllManagerEmployeesQues = (employees: [IEmployee]) => [
   },
 ];
 
-const removeEmployeeQues = (employees: [IEmployee]) => [
+const getEmployeeQues = (employees: [IEmployee]) => [
   {
     message: 'Enter an employee name: ',
-    name: 'emp_id',
+    name: 'empId',
     type: 'list',
     choices: employees.map((employee: IEmployee) => {
       return {
@@ -110,7 +96,6 @@ module.exports = {
   employeeQues,
   updateEmployeeQues,
   updateEmployeeRoleQues,
-  updateEmployeeManagerQues,
-  viewAllManagerEmployeesQues,
-  removeEmployeeQues,
+  getManagerQues,
+  getEmployeeQues,
 };

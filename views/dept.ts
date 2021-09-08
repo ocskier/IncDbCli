@@ -11,10 +11,10 @@ const deptQues = () => [
   },
 ];
 
-const removeDeptQues = (depts: [IDept]) => [
+const getDeptQues = (depts: [IDept]) => [
   {
     message: 'Enter the department name:',
-    name: 'dept_id',
+    name: 'deptId',
     type: 'list',
     choices: depts.map((dept: IDept) => {
       return { name: dept.name, value: dept.id };
@@ -22,15 +22,4 @@ const removeDeptQues = (depts: [IDept]) => [
   },
 ];
 
-const viewDeptBudgetQues = (depts: [IDept]) => [
-  {
-    message: 'Enter the department name: ',
-    name: 'deptid',
-    type: 'list',
-    choices: depts.map((dept: IDept) => {
-      return { name: dept.name, value: dept.id };
-    }),
-  },
-];
-
-module.exports = { deptQues, removeDeptQues, viewDeptBudgetQues }
+module.exports = { deptQues, getDeptQues }

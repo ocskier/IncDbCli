@@ -8,18 +8,16 @@ import { MysqlError } from 'mysql';
 const db = require('./controllers');
 const {
   deptQues,
-  removeDeptQues,
-  viewDeptBudgetQues,
+  getDeptQues,
 } = require('./views/dept');
 const {
   employeeQues,
   updateEmployeeQues,
   updateEmployeeRoleQues,
-  updateEmployeeManagerQues,
-  viewAllManagerEmployeesQues,
-  removeEmployeeQues,
+  getManagerQues,
+  getEmployeeQues,
 } = require('./views/employee');
-const { roleQues, removeRoleQues } = require('./views/role');
+const { roleQues, getRoleQues } = require('./views/role');
 
 // const validator = require('validator');
 
@@ -126,8 +124,8 @@ const getChoice = async (val: string) => {
             updateId = role;
             break;
           case 'Manager':
-            let { manager } = await ask.prompt(updateEmployeeManagerQues(employees));
-            updateId = manager;
+            let { managerId } = await ask.prompt(getManagerQues(employees));
+            updateId = managerId;
             break;
         }
         result = await db.Employee[`updateEmployee${choice}`](
@@ -138,33 +136,33 @@ const getChoice = async (val: string) => {
         result && printTable(await db.Employee.getAllEmployees());
         break;
       case `View All Employees of Manager`:
-        let { managerId } = await ask.prompt(viewAllManagerEmployeesQues(employees));
+        let { managerId } = await ask.prompt(getManagerQues(employees));
         result = await db.Employee.viewEmployeesByManager(parseInt(managerId));
         result.length > 0
           ? printTable(result)
           : console.log('\nEmployee does not have any direct reports!\n');
         break;
       case 'Remove A Dept':
-        let { dept_id } = await ask.prompt(removeDeptQues(depts));
-        result = await db.Dept.removeDept(parseInt(dept_id));
+        let { deptId: deptToRemove} = await ask.prompt(getDeptQues(depts));
+        result = await db.Dept.removeDept(parseInt(deptToRemove));
         result && console.log(`\nDeleted ${result.affectedRows} department!\n`);
         result && printTable(await db.Dept.getAllDepts());
         break;
       case 'Remove A Role':
-        let { role_id } = await ask.prompt(removeRoleQues(roles));
-        result = await db.Role.removeRole(parseInt(role_id));
+        let { roleId } = await ask.prompt(getRoleQues(roles));
+        result = await db.Role.removeRole(parseInt(roleId));
         result && console.log(`\nDeleted ${result.affectedRows} role!\n`);
         result && printTable(await db.Role.getAllRoles());
         break;
       case 'Remove An Employee':
-        let { emp_id } = await ask.prompt(removeEmployeeQues(employees));
-        result = await db.Employee.removeEmployee(parseInt(emp_id));
+        let { empId } = await ask.prompt(getEmployeeQues(employees));
+        result = await db.Employee.removeEmployee(parseInt(empId));
         result && console.log(`\nDeleted ${result.affectedRows} employee!\n`);
         result && printTable(await db.Employee.getAllEmployees());
         break;
       case `View A Department's Budget`:
-        let { deptid } = await ask.prompt(viewDeptBudgetQues(depts));
-        result = await db.Dept.viewDeptBudget(parseInt(deptid));
+        let { deptId: budgetDeptId } = await ask.prompt(getDeptQues(depts));
+        result = await db.Dept.viewDeptBudget(parseInt(budgetDeptId));
         result.length &&
           console.log(
             `\n${result[0].name} Budget: $${result.reduce((a: any, b: any) => {
