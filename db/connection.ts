@@ -12,16 +12,17 @@ const options = process.env.LOCALHOST_URL || {
 };
 
 class DB {
-  connection: Connection;
+  _connection: Connection;
   constructor() {
-    this.connection = mysql.createConnection(options);
+    this._connection = mysql.createConnection(options);
   }
+  get connection() { return this._connection; }
   asyncQuery(
     query: string,
     values?: string | Array<string | string[] | number>
   ) {
     return new Promise((resolve, reject) => {
-      this.connection.query(
+      this._connection.query(
         query,
         values,
         function (err: MysqlError, res: any) {
@@ -32,7 +33,7 @@ class DB {
     });
   }
   end() {
-    this.connection.end();
+    this._connection.end();
   }
 }
 
