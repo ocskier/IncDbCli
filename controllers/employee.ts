@@ -43,8 +43,8 @@ class Employee {
   }
 
   viewEmployeesByManager(id: number) {
-    return this.db.asyncQuery(`SELECT ?? FROM employees WHERE managerId=?`, [
-      ['first', 'last', 'roleId'],
+    return this.db.asyncQuery(`SELECT ?? FROM employees LEFT JOIN roles ON roleId = roles.id WHERE managerId=?`, [
+      ['first', 'last', 'title'],
       id,
     ]);
   }
