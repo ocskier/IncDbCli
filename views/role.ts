@@ -1,4 +1,4 @@
-const validate = require('../helpers/validate');
+const validate = require('../utils/validate');
 
 // Import types for models
 import { IRole, IDept } from '../types/schemaTypes';
