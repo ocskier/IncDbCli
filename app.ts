@@ -108,7 +108,7 @@ const getChoice = async (val: string) => {
       case 'Add A New Employee':
         answers = await ask.prompt(employeeQues(employees, roles));
         answers.first = answers.name.split(' ')[0];
-        answers.last = answers.name.split(' ')[1];
+        answers.last = answers.name.split(' ')[answers.name.split.length - 1];
         delete answers.name;
         result = await db.Employee.addEmployee(answers);
         result && console.log(`\nAdded ${result.affectedRows} new employee!\n`);

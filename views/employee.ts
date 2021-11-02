@@ -5,9 +5,9 @@ import { IRole, IEmployee } from '../types/schemaTypes';
 
 const employeeQues = (employees: [IEmployee], roles: [IRole]) => [
   {
-    message: 'Full Name: ',
+    message: 'Enter Full Name (first last): ',
     name: 'name',
-    validate: validate.isInput,
+    validate: validate.isFullName,
   },
   {
     message: 'Role Id: ',

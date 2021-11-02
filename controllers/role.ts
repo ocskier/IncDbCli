@@ -13,7 +13,7 @@ class Role {
   }
   getAllRoles() {
     return this.db.asyncQuery(
-      'SELECT roles.id,roles.title,roles.salary,departments.name FROM roles LEFT JOIN departments ON roles.deptID = departments.id;'
+      'SELECT roles.id,roles.title,roles.salary,departments.name AS dept FROM roles LEFT JOIN departments ON roles.deptID = departments.id;'
     );
   }
   addRole(roleData: IRoleInput) {

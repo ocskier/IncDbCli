@@ -11,6 +11,10 @@ const validate = {
     if (!isNaN(parseFloat(text))) return true;
     else return 'You didnt enter a valid number!';
   },
+  isFullName: (text: string) => {
+    if (text.includes(' ')) return true;
+    else return 'You didnt enter a full name!';
+  },
 };
 
 module.exports = validate;
