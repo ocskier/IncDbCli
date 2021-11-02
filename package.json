@@ -1,7 +1,7 @@
 {
-  "name": "htmltemplateengine",
+  "name": "inc-db-cli",
   "version": "1.0.0",
-  "description": "A Node based html template generator using Inquirer",
+  "description": "A Node based MySQL application using Inquirer",
   "main": "dist/app.js",
   "directories": {
     "lib": "lib",
